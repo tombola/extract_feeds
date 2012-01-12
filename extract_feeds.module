@@ -1,10 +1,18 @@
 <?php
 /* implementation of hook_help */
-function extract_feed_help($path, $arg) {
+function extract_feeds_help($path, $arg) {
 	switch ($path){
-		case 'admin/help#extract_feed':
-			$txt = 'Completes extract nodes with Feeds Xpath information on creation so that the bibliographic information can then be imported';
-			return '<p>'.t($txt).'</p>';#
+		case 'admin/help#extract_feeds':
+			$help = array(
+			'Completes extract nodes with Feeds Xpath information on creation 
+			so that the bibliographic information can then be imported.',
+			'The system weight of this module must be greater than that of feeds 
+			module so that it can alter feeds form fields.',
+			);
+			foreach ($help as $line) {
+				 $txt .= '<p>'.t($line).'</p>';
+			}
+			return $txt;
 			break;
 	}
 }
@@ -12,26 +20,26 @@ function extract_feed_help($path, $arg) {
 /**
  * Implementation of hook_nodeapi().
  */
-function extract_feed_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
-	switch ($op) {					
-		case 'presave':
+function extract_feeds_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
+		switch ($op) {					
+			case 'presave':
+				dpm($node->type);
+				if ($node->type == "extract") {
+					$node->feeds['FeedsHTTPFetcher']['source'] = "http://copac.ac.uk:3000/copac?operation=searchRetrieve&version=1.1&query=bath.isbn=%22159200346X%22&maximumRecords=1&recordSchema=mods";
+					$node->feeds['FeedsXPathParserXML']['xpath']['context'] = "//mods/*";
+					$node->feeds['FeedsXPathParserXML']['xpath']['sources']['xpathparser:1'] =  "titleInfo/title";
+				}	
+				break;		
+		}
 	
-			//if () {
-				$node->feeds['FeedsHTTPFetcher']['source'] = "http://copac.ac.uk:3000/copac?operation=searchRetrieve&version=1.1&query=bath.isbn=%22159200346X%22&maximumRecords=1&recordSchema=mods";
-				$node->feeds['FeedsXPathParserXML']['xpath']['context'] = "//mods/*";
-				$node->feeds['FeedsXPathParserXML']['xpath']['sources']['xpathparser:1'] =  "titleInfo/title";
-			//}
-	
-			break;		
-	}
 }
 
 // implements hook_form_alter
-function extract_feed_form_alter(&$form, &$form_state, $form_id) {
+function extract_feeds_form_alter(&$form, &$form_state, $form_id) {
 	// collapse casetracker fieldset
-	dpm($form_id);
-	dpm($form);
 	if ($form_id == "extract_node_form") {
+		dpm($form_id);
+		dpm($form);
 		$form['feeds']['FeedsHTTPFetcher']['source']['#required'] = FALSE;
 		$form['feeds']['FeedsHTTPFetcher']['source']['#default_value'] = "http://copac.ac.uk:3000/copac";
 		$form['feeds']['FeedsXPathParserXML']['xpath']['context']['#default_value'] = "//mods/*";
@@ -40,9 +48,13 @@ function extract_feed_form_alter(&$form, &$form_state, $form_id) {
 	
 }
 
-function extract_feed_strip_isbn(&$node) {
+
+// Not yet in use in this module
+/*
+function extract_feeds_strip_isbn(&$node) {
 	$node->field_isbn[0]['value'] = str_replace('ISBN-10', '', $node->field_isbn[0]['value'] );
 	$node->field_isbn[0]['value'] = str_replace('ISBN-13', '', $node->field_isbn[0]['value'] );
 	$node->field_isbn[0]['value'] = str_replace('ISBN', '', $node->field_isbn[0]['value'] );
 	$node->field_isbn[0]['value'] = preg_replace('/[^a-zA-Z0-9\s]/', '', $node->field_isbn[0]['value']);
 }
+*/

@@ -1,6 +1,6 @@
 ; $Id$
-name = "Glue"
-description = "Performs miscellaneous functions specific to this installation"
+name = "Extract Feeds"
+description = "Populates extract nodes from copac etc via feeds module"
 core = 6.x
 php = 5.1
-package = "T Readings Design"
+package = "tombola"
