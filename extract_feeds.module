@@ -9,8 +9,6 @@ function extract_feed_help($path, $arg) {
 	}
 }
 
-}
-
 /**
  * Implementation of hook_nodeapi().
  */

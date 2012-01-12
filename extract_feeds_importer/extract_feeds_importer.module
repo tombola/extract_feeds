@@ -1,0 +1,3 @@
+<?php
+
+include_once('extract_feeds_importer.features.inc');
