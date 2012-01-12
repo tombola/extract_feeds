@@ -1,0 +1,6 @@
+; $Id$
+name = "Glue"
+description = "Performs miscellaneous functions specific to this installation"
+core = 6.x
+php = 5.1
+package = "T Readings Design"
