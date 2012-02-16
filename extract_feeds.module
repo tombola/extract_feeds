@@ -20,32 +20,94 @@ function extract_feeds_help($path, $arg) {
 /**
  * Implementation of hook_nodeapi().
  */
-function extract_feeds_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
-		switch ($op) {					
-			case 'presave':
-				dpm($node->type);
-				if ($node->type == "extract") {
-					$node->feeds['FeedsHTTPFetcher']['source'] = "http://copac.ac.uk:3000/copac?operation=searchRetrieve&version=1.1&query=bath.isbn=%22159200346X%22&maximumRecords=1&recordSchema=mods";
-					$node->feeds['FeedsXPathParserXML']['xpath']['context'] = "//mods/*";
-					$node->feeds['FeedsXPathParserXML']['xpath']['sources']['xpathparser:1'] =  "titleInfo/title";
-				}	
+function extract_feeds_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {	
+	$importable_nodetypes = array('extract');
+	if (in_array($node->type, $importable_nodetypes)) {
+		switch ($op) {
+			case 'insert':
+			case 'update':
+				// is 'import biblio' checkbox is ticked?
+				if ($node->field_import[0]['value']) {
+					switch ($node->field_import[0]['value']) {
+						case 1:	
+							// run feeds importer
+							//feeds_batch_set(t('Importing'), 'import', $importer_id, $node->nid);
+							break;
+					}
+				}
+				break;
+			case 'validate':
+				//_set_node_feed($node, $node->field_import[0]['value']);
+				if ($node->field_import[0]['value']) {
+					switch ($node->field_import[0]['value']) {
+						case 'copac':	
+							// run feeds importer
+							feeds_batch_set(t('Importing'), 'import', $importer_id, $node->nid);
+							break;
+					}
+				}
+				break;
+			case 'presave':		
+				// set feed details based on import source (eg copac) and available biblio info
+				//
+				//dpm($node);
+				
+				
 				break;		
 		}
-	
+	}			
+}
+
+
+// called during presave
+function _set_node_feed(&$node, $import_source) {
+	dpm('import source: '. $import_source);
+	switch ($import_source) {
+		case 0:
+		case 1:
+			// copac
+			if ($isbn = $node->field_isbn[0]['value']) {
+				dpm('setting feeds info');
+				$copac_sru_query = 'http://copac.ac.uk:3000/copac?operation=searchRetrieve&version=1.1&query=bath.isbn=%%22%s%%22&maximumRecords=1&recordSchema=mods';
+				$node->feeds['FeedsHTTPFetcher']['source'] = sprintf($copac_sru_query, $isbn); //
+				//dpm(drupal_urlencode(sprintf($copac_sru_query, $isbn)));
+				$node->feeds['FeedsXPathParserXML']['xpath']['context'] = "//mods/*";
+				$node->feeds['FeedsXPathParserXML']['xpath']['sources']['xpathparser:1'] =  "//titleInfo/title";
+				break;
+			}
+			
+			break;
+	}
 }
 
 // implements hook_form_alter
 function extract_feeds_form_alter(&$form, &$form_state, $form_id) {
 	// collapse casetracker fieldset
 	if ($form_id == "extract_node_form") {
-		dpm($form_id);
+		//dpm($form_id);
+		$form['field_myfield']['#default_value'][0]['value'] = 1;
 		dpm($form);
-		$form['feeds']['FeedsHTTPFetcher']['source']['#required'] = FALSE;
-		$form['feeds']['FeedsHTTPFetcher']['source']['#default_value'] = "http://copac.ac.uk:3000/copac";
-		$form['feeds']['FeedsXPathParserXML']['xpath']['context']['#default_value'] = "//mods/*";
-		$form['feeds']['FeedsXPathParserXML']['xpath']['sources']['xpathparser:1']['#default_value'] =  "titleInfo/title";
+		_set_nodeform_feeds_defaults($form);
 	}
+}
+
+function _set_nodeform_feeds_defaults(&$form) {
+	// for testing only
+	$isbn = "159200346X";
+	$copac_sru = 'http://copac.ac.uk:3000/copac?operation=searchRetrieve&version=1.1&query=bath.isbn=%%22%s%%22&maximumRecords=1&recordSchema=mods';
+	$copac_sru_query = sprintf($copac_sru, $isbn);
+	// end for testing only
 	
+	$form['feeds']['FeedsHTTPFetcher']['source']['#required'] = FALSE;
+	$form['feeds']['FeedsHTTPFetcher']['source']['#default_value'] = $copac_sru_query; //"http://copac.ac.uk:3000/copac";
+	$form['feeds']['FeedsXPathParserXML']['xpath']['context']['#default_value'] = "//mods/*";
+	$form['feeds']['FeedsXPathParserXML']['xpath']['sources']['xpathparser:1']['#default_value'] =  "//titleInfo/title";
+}
+
+function _set_node_feeds_defaults(&$node) {
+	$node->feeds['FeedsHTTPFetcher']['source'] = "http://copac.ac.uk:3000/copac?operation=searchRetrieve&version=1.1&query=bath.isbn=%22159200346X%22&maximumRecords=1&recordSchema=mods";
+	$node->feeds['FeedsXPathParserXML']['xpath']['context'] = "//mods/*";
+	$node->feeds['FeedsXPathParserXML']['xpath']['sources']['xpathparser:1'] =  "titleInfo/title";
 }
 
 

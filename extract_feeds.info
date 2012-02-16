@@ -4,3 +4,4 @@ description = "Populates extract nodes from copac etc via feeds module"
 core = 6.x
 php = 5.1
 package = "tombola"
+dependencies[] = extract_feeds_importer
