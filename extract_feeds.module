@@ -61,7 +61,6 @@ function extract_feeds_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
 
 // called during presave
 function _set_node_feed(&$node, $import_source) {
-	dpm('import source: '. $import_source);
 	switch ($import_source) {
 		case 0:
 		case 1:
@@ -82,11 +81,8 @@ function _set_node_feed(&$node, $import_source) {
 
 // implements hook_form_alter
 function extract_feeds_form_alter(&$form, &$form_state, $form_id) {
-	// collapse casetracker fieldset
+	// set defaults for feed settings so that validates
 	if ($form_id == "extract_node_form") {
-		//dpm($form_id);
-		$form['field_myfield']['#default_value'][0]['value'] = 1;
-		dpm($form);
 		_set_nodeform_feeds_defaults($form);
 	}
 }

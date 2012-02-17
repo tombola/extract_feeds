@@ -48,6 +48,36 @@ function extract_feeds_importer_feeds_importer_default() {
             'target' => 'field_pubtitle',
             'unique' => FALSE,
           ),
+          1 => array(
+            'source' => 'xpathparser:2',
+            'target' => 'field_pubauthor',
+            'unique' => FALSE,
+          ),
+          2 => array(
+            'source' => 'xpathparser:3',
+            'target' => 'field_publisher',
+            'unique' => FALSE,
+          ),
+          3 => array(
+            'source' => 'xpathparser:4',
+            'target' => 'field_publocation',
+            'unique' => FALSE,
+          ),
+          4 => array(
+            'source' => 'xpathparser:6',
+            'target' => 'field_isbn',
+            'unique' => FALSE,
+          ),
+          5 => array(
+            'source' => 'xpathparser:7',
+            'target' => 'field_totalpages',
+            'unique' => FALSE,
+          ),
+          6 => array(
+            'source' => 'xpathparser:8',
+            'target' => 'field_pubyear',
+            'unique' => FALSE,
+          ),
         ),
         'author' => 0,
         'authorize' => 0,

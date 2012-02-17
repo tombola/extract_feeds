@@ -1,0 +1,7 @@
+; $Id$
+name = "Digres tamper"
+description = "Feeds Tamper plugin to get book extents etc on import"
+core = 6.x
+php = 5.1
+package = "Feeds"
+dependencies[] = feeds_tamper
